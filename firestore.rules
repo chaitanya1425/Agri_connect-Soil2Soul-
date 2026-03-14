@@ -1,0 +1,96 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+         (request.auth.token.email == "23be0145@sipnaengg.ac.in" && request.auth.token.email_verified == true));
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    // ===============================================================
+    // User Profiles
+    // ===============================================================
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId) && 
+                      request.resource.data.role in ['farmer', 'customer', 'college', 'agency', 'krushi_kendra', 'seed_company', 'fertilizer_company', 'tool_company', 'community', 'scheme_provider', 'bank'] &&
+                      isValidEmail(request.resource.data.email);
+      allow update: if isOwner(userId) && 
+                      request.resource.data.role == resource.data.role; // Role cannot be changed by user
+      allow delete: if isAdmin();
+    }
+
+    // ===============================================================
+    // Products
+    // ===============================================================
+    match /products/{productId} {
+      allow read: if true; // Marketplace is public
+      allow create: if isAuthenticated() && 
+                      (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['farmer', 'agency', 'krushi_kendra', 'seed_company', 'fertilizer_company', 'tool_company']);
+      allow update, delete: if isAuthenticated() && 
+                             (resource.data.sellerId == request.auth.uid || isAdmin());
+    }
+
+    // ===============================================================
+    // Orders
+    // ===============================================================
+    match /orders/{orderId} {
+      allow read: if isAuthenticated() && 
+                    (resource.data.customerId == request.auth.uid || resource.data.sellerId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && request.resource.data.customerId == request.auth.uid;
+      allow update: if isAuthenticated() && 
+                      (resource.data.sellerId == request.auth.uid || isAdmin());
+    }
+
+    // ===============================================================
+    // Posts
+    // ===============================================================
+    match /posts/{postId} {
+      allow read: if true;
+      allow create: if isAuthenticated();
+      allow update, delete: if isAuthenticated() && 
+                             (resource.data.authorId == request.auth.uid || isAdmin());
+    }
+
+    // ===============================================================
+    // Workshops
+    // ===============================================================
+    match /workshops/{workshopId} {
+      allow read: if true;
+      allow create: if isAuthenticated() && 
+                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'college';
+      allow update, delete: if isAuthenticated() && 
+                             (resource.data.collegeId == request.auth.uid || isAdmin());
+    }
+
+    // ===============================================================
+    // Schemes
+    // ===============================================================
+    match /schemes/{schemeId} {
+      allow read: if true;
+      allow create: if isAuthenticated() && 
+                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'scheme_provider';
+      allow update, delete: if isAuthenticated() && 
+                             (resource.data.providerId == request.auth.uid || isAdmin());
+    }
+  }
+}

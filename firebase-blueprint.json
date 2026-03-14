@@ -1,0 +1,112 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile for the agriculture ecosystem",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "role": { 
+          "type": "string", 
+          "enum": ["farmer", "customer", "college", "agency", "krushi_kendra", "seed_company", "fertilizer_company", "tool_company", "community", "scheme_provider", "bank", "admin"] 
+        },
+        "location": { "type": "object" },
+        "phoneNumber": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "bio": { "type": "string" },
+        "cropsGrown": { "type": "array", "items": { "type": "string" } },
+        "farmSize": { "type": "number" },
+        "isVerified": { "type": "boolean" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Agricultural products or produce",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "sellerId": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "price": { "type": "number" },
+        "category": { "type": "string", "enum": ["produce", "seeds", "fertilizers", "tools", "machinery"] },
+        "stock": { "type": "number" },
+        "unit": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["sellerId", "name", "price", "category"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Marketplace orders",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "customerId": { "type": "string" },
+        "sellerId": { "type": "string" },
+        "items": { "type": "array" },
+        "totalAmount": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "shipped", "delivered", "cancelled"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["customerId", "sellerId", "items", "totalAmount"]
+    },
+    "Post": {
+      "title": "Post",
+      "description": "Forum or research posts",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "authorId": { "type": "string" },
+        "authorName": { "type": "string" },
+        "content": { "type": "string" },
+        "type": { "type": "string", "enum": ["forum", "research", "announcement"] },
+        "likes": { "type": "array" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["authorId", "content", "type"]
+    },
+    "Workshop": {
+      "title": "Workshop",
+      "description": "Training and workshops",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "collegeId": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "videoUrl": { "type": "string" },
+        "pdfUrl": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" }
+      },
+      "required": ["collegeId", "title"]
+    },
+    "Scheme": {
+      "title": "Government Scheme",
+      "description": "Government schemes and subsidies",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "providerId": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "subsidyAmount": { "type": "number" },
+        "eligibility": { "type": "string" },
+        "link": { "type": "string" }
+      },
+      "required": ["title", "description"]
+    }
+  },
+  "firestore": {
+    "users": { "schema": "User", "description": "User profiles" },
+    "products": { "schema": "Product", "description": "Marketplace products" },
+    "orders": { "schema": "Order", "description": "Marketplace orders" },
+    "posts": { "schema": "Post", "description": "Community posts" },
+    "workshops": { "schema": "Workshop", "description": "Educational workshops" },
+    "schemes": { "schema": "Scheme", "description": "Government schemes" }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "name": "AgriConnect – Mega Agriculture Ecosystem App",
+  "description": "A comprehensive digital ecosystem connecting farmers, customers, colleges, agencies, and government providers to improve agriculture income and knowledge.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
